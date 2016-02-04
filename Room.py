@@ -6,14 +6,14 @@ import random
 class Room(object):
     """docstring for Room"""
     def __init__(self, maxTop, maxLeft, top=None, left=None):
-        self.width = random.randrange(4, 8)
-        self.height = random.randrange(4, 8)
+        self.width = random.randrange(6, 10)
+        self.height = random.randrange(6, 10)
         if left == None:
-        	self.left = random.randrange(1, maxLeft - self.width)
+        	self.left = random.randrange(0, maxLeft - self.width)
         else:
 	        self.left = left
         if top == None:
-        	self.top = random.randrange(1, maxTop - self.height)
+        	self.top = random.randrange(0, maxTop - self.height)
         else:
 	        self.top = top
 
