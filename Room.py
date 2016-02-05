@@ -3,17 +3,46 @@
 
 import random
 
-class Room(object):
-    """docstring for Room"""
-    def __init__(self, maxTop, maxLeft, top=None, left=None):
-        self.width = random.randrange(6, 10)
-        self.height = random.randrange(6, 10)
-        if left == None:
-        	self.left = random.randrange(0, maxLeft - self.width)
-        else:
-	        self.left = left
-        if top == None:
-        	self.top = random.randrange(0, maxTop - self.height)
-        else:
-	        self.top = top
 
+class DimRange(object):
+	def __init__(self, x1, x2, y1, y2):
+		self.minX = x1
+		self.maxX = x2
+		self.minY = y1
+		self.maxY = y2
+			
+class Room(object):
+	def __init__(self, map, minMaxRange):
+		#far left of room - should always be the max range away from the outer wall
+		self.x1 = random.randrange(1, (map.width - minMaxRange.maxX))
+		#upper wall of room - same as above.
+		self.y1 = random.randrange(1, (map.height - minMaxRange.maxY))
+
+		#Far right of room
+		self.x2 = self.x1 + random.randrange(minMaxRange.minX, minMaxRange.maxX)
+
+		#lower wall of room
+		self.y2 = self.y1 + random.randrange(minMaxRange.minY, minMaxRange.maxY)
+			
+		
+	def isPointInside(self, x, y):
+		if((x >= self.x1 and x <= self.x2) and (y >= self.y1 and y <= self.y2)):
+			return True
+		else:
+			return False
+	#return true if there is intersection between this room
+	# and another room
+	def intersects(self, test):
+		if(self.isPointInside(test.x1, test.y1)) or (test.isPointInside(self.x1, self.y1)):
+			return True;
+
+		if(self.isPointInside(test.x1, test.y2)) or (test.isPointInside(self.x1, self.y2)):
+			return True;
+
+		if(self.isPointInside(test.x2, test.y1)) or (self.isPointInside(test.x2, test.y1)):
+			return True;
+
+		if(self.isPointInside(test.x2, test.y2)) or (test.isPointInside(self.x2, self.y2)):
+			return True;
+
+		return False;
