@@ -3,7 +3,6 @@
 
 import random
 
-
 class DimRange(object):
 	def __init__(self, x1, x2, y1, y2):
 		self.minX = x1
@@ -33,16 +32,21 @@ class Room(object):
 	#return true if there is intersection between this room
 	# and another room
 	def intersects(self, test):
+	
 		if(self.isPointInside(test.x1, test.y1)) or (test.isPointInside(self.x1, self.y1)):
-			return True;
+			return True
 
 		if(self.isPointInside(test.x1, test.y2)) or (test.isPointInside(self.x1, self.y2)):
-			return True;
+			return True
 
-		if(self.isPointInside(test.x2, test.y1)) or (self.isPointInside(test.x2, test.y1)):
-			return True;
+		if(self.isPointInside(test.x2, test.y1)) or (test.isPointInside(self.x2, self.y1)):
+			return True
 
 		if(self.isPointInside(test.x2, test.y2)) or (test.isPointInside(self.x2, self.y2)):
-			return True;
+			return True
 
+		for x in xrange(self.x1, self.x2 + 1):
+			for y in xrange(self.y1, self.y2 + 1):
+				if test.isPointInside(x, y):
+					return True
 		return False;

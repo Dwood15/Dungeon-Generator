@@ -4,7 +4,9 @@
 import random
 from Room import *
 
-
+#Move min max to own named variables
+#Min room #, max room #
+MAX_ROOM_NUMBER = 23
 
 minMaxRoomDims = DimRange(4, 8, 4, 8)
 
@@ -18,7 +20,7 @@ class Map(object):
 		
 		#iterate over the map and fill it with wall tiles
 		self._map = ["#" for i in xrange(0, width * height)] 
-		self.room = [None] * 8
+		self.room = [None] * MAX_ROOM_NUMBER
 
 	def __str__(self):
 		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
@@ -28,7 +30,7 @@ class Map(object):
 			self._map[i] = ' '
 
 	def	isRoomIntersectingAnotherRoom(self, index):
-		for i in xrange(0, 8):
+		for i in xrange(0, MAX_ROOM_NUMBER):
 			if (i != index) and (self.room[index] != None) and (self.room[i] != None):
 				if (self.room[index].intersects(self.room[i])):
 					return True
@@ -51,7 +53,7 @@ class Map(object):
 
 if __name__ == '__main__':
 	map = Map(80, 24)
-	for x in xrange(0, 8):
+	for x in xrange(0, MAX_ROOM_NUMBER):
 		map.RollRoom(x)
 		map.addRoomToString(map.room[x])
 
