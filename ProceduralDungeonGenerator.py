@@ -6,7 +6,7 @@ from Room import *
 
 #Move min max to own named variables
 #Min room #, max room #
-MAX_ROOM_NUMBER = 8
+MAX_ROOM_NUMBER = 22
 
 minMaxRoomDims = DimRange(4, 8, 4, 8)
 
