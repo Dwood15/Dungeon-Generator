@@ -23,7 +23,7 @@ class Room(object):
 		#lower wall of room
 		self.y2 = self.y1 + random.randrange(minMaxRange.minY, minMaxRange.maxY)
 			
-		
+	
 	def isPointInside(self, x, y):
 		if((x >= self.x1 and x <= self.x2) and (y >= self.y1 and y <= self.y2)):
 			return True
@@ -44,9 +44,17 @@ class Room(object):
 
 		if(self.isPointInside(test.x2, test.y2)) or (test.isPointInside(self.x2, self.y2)):
 			return True
-
-		for x in xrange(self.x1, self.x2 + 1):
-			for y in xrange(self.y1, self.y2 + 1):
+		
+		if self.x1 > test.x2 or self.x2 < test.x1:
+			return False
+			
+		if self.y1 > test.y2 or self.y2 < test.y1:
+			return False
+			#print "Our far left: %d their far right: %d"  %(self.x1, test.x1)
+		
+		for x in xrange(self.x1 + 1, self.x1 + 3):
+			for y in xrange(self.y1 + 1, self.y1 + 3):
 				if test.isPointInside(x, y):
 					return True
+		print "Found a valid room, but couldn't meet above tests: top left: (%d, %d)" %(self.y1, self.y2)			
 		return False;
