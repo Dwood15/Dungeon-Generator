@@ -1,17 +1,27 @@
 #!/usr/bin/env python
 # -*-coding:Utf-8 -*
 
+#external modules
 import random
+
+#our modules/files
+from Point import *
 from Room import *
+from Hallway import *
 
 #Move min max to own named variables
 #Min room #, max room #
 MAX_ROOM_NUMBER = 22
 
-minMaxRoomDims = DimRange(4, 8, 4, 8)
+MIN_ROOM_X = 4
+MAX_ROOM_X = 8
+MIN_ROOM_Y = 4
+MAX_ROOM_Y = 8
+
+#A room should be 4x4 at the smallest, and 8x8 at largest
+minMaxRoomDims = DimRange(MIN_ROOM_X, MAX_ROOM_X, MIN_ROOM_Y, MAX_ROOM_Y)
 
 
-		
 class Map(object):
 	"""docstring for Map"""
 	def __init__(self, width, height):
@@ -26,7 +36,7 @@ class Map(object):
 		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
 
 	def addRoomToString(self, room):
-		for i in [(x + y * self.width) for x in xrange(room.x1, room.x2) for y in xrange(room.y1, room.y2)]:
+		for i in [(x + y * self.width) for x in xrange(room.TopLeft.x, room.BotRight.x) for y in xrange(room.TopLeft.y, room.BotRight.y)]:
 			self._map[i] = ' '
 
 	def	isRoomIntersectingAnotherRoom(self, index):
@@ -39,6 +49,9 @@ class Map(object):
 				return False
 		return False
 
+	def MakeHallway(self, roomAIndex, roomBIndex):
+		pass
+		
 	def RollRoom(self, index, maxReRolls= -1):
 		reRoll = 1
 		self.room[index] = Room(self, minMaxRoomDims)
