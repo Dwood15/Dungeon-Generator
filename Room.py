@@ -3,13 +3,7 @@
 
 import random
 from Point import *
-class DimRange(object):
-	def __init__(self, x1, x2, y1, y2):
-		self.min = Point(x1, y1)
-		self.max = Point(y1, y2)
 
-
-					
 class Room(object):
 	def __init__(self, map, minMaxRange):
 		#far left of room - should always be the max range away from the outer wall
@@ -23,9 +17,10 @@ class Room(object):
 		#lower wall of room
 		y2 = y1 + random.randrange(minMaxRange.min.y, minMaxRange.max.y + 1)
 		self.BotRight = Point(x2, y2)
+		self.HasHallway = False
 	
 	def isPointInside(self, x, y):
-		if((x >= TopLeft.x and x <= self.BotRight.x) and (y >= self.TopLeft.y and y <= self.BotRight.y)):
+		if((x >= self.TopLeft.x and x <= self.BotRight.x) and (y >= self.TopLeft.y and y <= self.BotRight.y)):
 			return True
 		else:
 			return False
@@ -33,4 +28,27 @@ class Room(object):
 	# and another room - this tests to see if the top is lower than the lowest of the one to test.
 	def intersects(self, test):
 		return not (self.TopLeft.x > test.BotRight.x or self.BotRight.x < test.TopLeft.x or self.TopLeft.y > test.BotRight.y or self.BotRight.y < test.TopLeft.y)
-			
+		
+	#Find the wall closest to the one we're testing
+	def findClosestWallsAndTheirDistances(self, test, vertical = False):
+		if not vertical :
+			#the higher it is, the firther to the right it is.
+			if self.TopLeft.x > test.BotRight.x:
+				return ("right", self.TopLeft.x - test.BotRight.x)
+			else:
+				return ("left", self.BotRight.x - test.TopLeft.x)
+		else:
+			#the higher the number it is, the lower it is
+			if self.TopLeft.y > test.BotRight.y: 
+				return ("lower", self.TopLeft.y - test.BotRight.y)
+			else:
+				return ("upper", self.BotRight.y - test.TopLeft.y)
+				
+	def sharesAxis(self, test):
+		for i in xrange(self.TopLeft.y, self.BotRight.y + 1):
+			if test.isPointInside(test.TopLeft.x, i):
+				return ("x", self.BotRight.x - test.TopLeft.x)
+		for i in xrange(self.TopLeft.x, self.BotRight.x + 1):
+			if test.isPointInside(i, test.BotRight.y):
+				return ("y", self.BotRight.x - test.TopLeft.x)
+		return None

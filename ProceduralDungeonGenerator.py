@@ -3,6 +3,7 @@
 
 #external modules
 import random
+from array import *
 
 #our modules/files
 from Point import *
@@ -30,8 +31,12 @@ class Map(object):
 		
 		#iterate over the map and fill it with wall tiles
 		self._map = ["#" for i in xrange(0, width * height)] 
-		self.room = [None] * MAX_ROOM_NUMBER
-
+		self.rooms = [Room(self, minMaxRoomDims)] * MAX_ROOM_NUMBER
+		for i in xrange(0, MAX_ROOM_NUMBER):
+			print "Testing to see if room: %d intersects with another room" %i
+			while(self.isRoomIntersectingAnotherRoom(i)):
+				self.rooms[i] = self.RollRoom(i)
+				
 	def __str__(self):
 		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
 
@@ -41,26 +46,58 @@ class Map(object):
 
 	def	isRoomIntersectingAnotherRoom(self, index):
 		for i in xrange(0, MAX_ROOM_NUMBER):
-			if (i != index) and (self.room[index] != None) and (self.room[i] != None):
-				if (self.room[index].intersects(self.room[i])):
+			#'''and (self.rooms[index] != None)''' 
+			if (i != index) and (self.rooms[i] != None):
+				if (self.rooms[index].intersects(self.rooms[i])):
 					return True
 			#Depends on the linear insertion into the room array object
-			if(self.room[index] == None):
+			if(self.rooms[index] == None):
 				return False
 		return False
 
-	def MakeHallway(self, roomAIndex, roomBIndex):
-		pass
+	def FindNearestRoomsAndMakeHallways(self):
+		#search horizontally
+		self.proximities = []
 		
-	def RollRoom(self, index, maxReRolls= -1):
-		reRoll = 1
-		self.room[index] = Room(self, minMaxRoomDims)
+		for i in xrange(0, MAX_ROOM_NUMBER + 1):
+			#list rooms in order of proximity.
+			self.proximities.append([])
+			
+			#search for horizontal
+			for j in xrange(0, MAX_ROOM_NUMBER + 1):
+				if i != j:
+					print 'Index i: {0:2d}{1:2d} Index j: %d'.format(i, j)
+					self.proximities[i].append((j, self.rooms[i].sharesAxis(self.rooms[j])))
 
-		while(self.isRoomIntersectingAnotherRoom(index) and maxReRolls != reRoll):
-			reRoll = reRoll + 1
-			self.room[index] = Room(self, minMaxRoomDims)
+			for j in xrange(0, MAX_ROOM_NUMBER + 1):
+				if i != j:
+					self.proximities[i].append((j, self.rooms[i].sharesAxis(self.rooms[i])))
+					
+			print "Proximities found for room: %d with the following rooms:" %i
+			for p in self.proximities:
+				print "%d, %s" %p[0] %p[1][0]
+			
+			
+	#index_a and b are the indexes to the two rooms we want to match up.
+	def MakeHallway(self, index_a, index_b, Vertical = False):
+		AvailablePoints = []
+		if(Vertical):
+			self.rooms[index_a].sharesAxis(index_b)
+			AvailablePoints.append(X)
+		else:
+			for Y in xrange(self.rooms[index_a].TopLeft.y, self.rooms[index_a].BotRight.y + 1):
+				if self.rooms[index_b].isPointInside(Y, self.rooms[index_b].BotRight.x):
+					AvailablePoints.append(Y)
+				
+		for i in AvailablePoints:
+			if Vertical:
+				print "Vertical room, roomA: %d" 
+			print "Available  Point: %d" %i
 		
-		return maxReRolls != reRoll 
+		
+	def RollRoom(self, index):
+		room = Room(self, minMaxRoomDims)
+		return room 
 		
 		# def hallway(self, room1, room2, width):
 
@@ -68,7 +105,8 @@ if __name__ == '__main__':
 	map = Map(80, 24)
 	for x in xrange(0, MAX_ROOM_NUMBER):
 		map.RollRoom(x)
-		map.addRoomToString(map.room[x])
+		map.FindNearestRoomsAndMakeHallways()
+		map.addRoomToString(map.rooms[x])
 
 	print map
 
