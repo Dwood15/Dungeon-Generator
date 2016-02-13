@@ -5,7 +5,7 @@ import random
 from Point import *
 
 class Room(object):
-	def __init__(self, map, minMaxRange):
+	def __init__(self, map, minMaxRange, index=0, char='a'):
 		#far left of room - should always be the max range away from the outer wall
 		x1 = random.randrange(1, (map.width - minMaxRange.max.x))
 		#upper wall of room - same as above.
@@ -17,8 +17,26 @@ class Room(object):
 		#lower wall of room
 		y2 = y1 + random.randrange(minMaxRange.min.y, minMaxRange.max.y + 1)
 		self.BotRight = Point(x2, y2)
+		
+		#my index from inside of the map class
+		self.myIndex = index
+		
+		#If it has at least ONE hallway.
 		self.HasHallway = False
+		#just a list of indices.
+		self.Hallways = []
+		
+		#the character which represents each room
+		self.character = char
 	
+	
+	def findHallwayDirectlyBetween(self, test):
+		for h in self.Hallways:
+			if test.Hallways.index(h) != None:
+				print "Found a hallway between: Room: {0:2d} and {0:2d}, hallway: {0:2d}".format(self.myIndex, test.myIndex, h)
+				return (True, h)
+		return (False, None, None)
+		
 	def isPointInside(self, x, y):
 		if((x >= self.TopLeft.x and x <= self.BotRight.x) and (y >= self.TopLeft.y and y <= self.BotRight.y)):
 			return True
@@ -40,15 +58,16 @@ class Room(object):
 		else:
 			#the higher the number it is, the lower it is
 			if self.TopLeft.y > test.BotRight.y: 
-				return ("lower", self.TopLeft.y - test.BotRight.y)
+				return ("upper", self.TopLeft.y - test.BotRight.y)
 			else:
-				return ("upper", self.BotRight.y - test.TopLeft.y)
+				return ("lower", self.BotRight.y - test.TopLeft.y)
 				
 	def sharesAxis(self, test):
 		for i in xrange(self.TopLeft.y, self.BotRight.y + 1):
 			if test.isPointInside(test.TopLeft.x, i):
-				return ("x", self.BotRight.x - test.TopLeft.x)
+				return self.findClosestWallsAndTheirDistances(test)
+				
 		for i in xrange(self.TopLeft.x, self.BotRight.x + 1):
 			if test.isPointInside(i, test.BotRight.y):
-				return ("y", self.BotRight.x - test.TopLeft.x)
+				return self.findClosestWallsAndTheirDistances(test, True)
 		return None

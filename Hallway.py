@@ -1,7 +1,11 @@
 class Hallway(object):
-	def __init__(self,  sideA, sideB):
+	def __init__(self,  sideA, sideB, associated_room_indices=[], associated_hallways=[], char = ' '):
 		#sideA will always be the far left or the topmost.
 		#enforce alignment
+		self.associatedRoomIndexes = associated_room_indices
+		self.associatedHallIndexes = associated_hallways
+		self.character = char
+		
 		if(sideA.isVerticallyAligned(sideB)):
 			self.isVertical = True
 			if(sideA.x < sideB.x):

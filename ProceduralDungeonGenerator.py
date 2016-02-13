@@ -12,7 +12,7 @@ from Hallway import *
 
 #Move min max to own named variables
 #Min room #, max room #
-MAX_ROOM_NUMBER = 22
+MAX_ROOM_NUMBER = 8
 
 MIN_ROOM_X = 4
 MAX_ROOM_X = 8
@@ -20,7 +20,7 @@ MIN_ROOM_Y = 4
 MAX_ROOM_Y = 8
 
 #A room should be 4x4 at the smallest, and 8x8 at largest
-minMaxRoomDims = DimRange(MIN_ROOM_X, MAX_ROOM_X, MIN_ROOM_Y, MAX_ROOM_Y)
+minMaxRoomDims = DimRange(MIN_ROOM_X, MIN_ROOM_Y, MAX_ROOM_X, MAX_ROOM_Y)
 
 
 class Map(object):
@@ -30,21 +30,26 @@ class Map(object):
 		self.height = height
 		
 		#iterate over the map and fill it with wall tiles
-		self._map = ["#" for i in xrange(0, width * height)] 
+		self._map = ["+" for i in xrange(0, width * height)] 
+
 		self.rooms = [Room(self, minMaxRoomDims)] * MAX_ROOM_NUMBER
+		
 		for i in xrange(0, MAX_ROOM_NUMBER):
-			print "Testing to see if room: %d intersects with another room" %i
+			self.rooms[i].myIndex = i
+			#print "Testing to see if room: %d intersects with another room" %i
 			while(self.isRoomIntersectingAnotherRoom(i)):
 				self.rooms[i] = self.RollRoom(i)
+		
+		self.hallways = self.findNearestRoomsAndMakeHallways()
 				
 	def __str__(self):
 		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
+		
+	def addRoomToString(self, room, ci):
+		for i in [x + y * self.width for x in xrange(room.TopLeft.x, room.BotRight.x) for y in xrange(room.TopLeft.y, room.BotRight.y)]:
+			self._map[i] = chr(ord(room.character)+ci)
 
-	def addRoomToString(self, room):
-		for i in [(x + y * self.width) for x in xrange(room.TopLeft.x, room.BotRight.x) for y in xrange(room.TopLeft.y, room.BotRight.y)]:
-			self._map[i] = ' '
-
-	def	isRoomIntersectingAnotherRoom(self, index):
+	def isRoomIntersectingAnotherRoom(self, index):
 		for i in xrange(0, MAX_ROOM_NUMBER):
 			#'''and (self.rooms[index] != None)''' 
 			if (i != index) and (self.rooms[i] != None):
@@ -55,27 +60,30 @@ class Map(object):
 				return False
 		return False
 
-	def FindNearestRoomsAndMakeHallways(self):
+	def createHallwayBetweenRooms(self, proximityList, room_b_index):	
+		for p in proximityList:
+			if(p != None):
+				pass
+		pass
+		
+	def findNearestRoomsAndMakeHallways(self):
 		#search horizontally
 		self.proximities = []
 		
-		for i in xrange(0, MAX_ROOM_NUMBER + 1):
+		for i in xrange(0, MAX_ROOM_NUMBER):
 			#list rooms in order of proximity.
 			self.proximities.append([])
 			
 			#search for horizontal
-			for j in xrange(0, MAX_ROOM_NUMBER + 1):
+			for j in xrange(0, MAX_ROOM_NUMBER):
 				if i != j:
-					print 'Index i: {0:2d}{1:2d} Index j: %d'.format(i, j)
+					#print 'Index i: {0:2d} Index j: {1:2d}'.format(i, j)
 					self.proximities[i].append((j, self.rooms[i].sharesAxis(self.rooms[j])))
-
-			for j in xrange(0, MAX_ROOM_NUMBER + 1):
-				if i != j:
-					self.proximities[i].append((j, self.rooms[i].sharesAxis(self.rooms[i])))
 					
 			print "Proximities found for room: %d with the following rooms:" %i
-			for p in self.proximities:
-				print "%d, %s" %p[0] %p[1][0]
+			for p in self.proximities[i]:
+				print p
+			
 			
 			
 	#index_a and b are the indexes to the two rooms we want to match up.
@@ -96,7 +104,7 @@ class Map(object):
 		
 		
 	def RollRoom(self, index):
-		room = Room(self, minMaxRoomDims)
+		room = Room(self, minMaxRoomDims, index)
 		return room 
 		
 		# def hallway(self, room1, room2, width):
@@ -105,8 +113,7 @@ if __name__ == '__main__':
 	map = Map(80, 24)
 	for x in xrange(0, MAX_ROOM_NUMBER):
 		map.RollRoom(x)
-		map.FindNearestRoomsAndMakeHallways()
-		map.addRoomToString(map.rooms[x])
+		map.addRoomToString(map.rooms[x], x)
 
 	print map
 
