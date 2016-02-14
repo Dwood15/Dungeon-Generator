@@ -1,9 +1,10 @@
 class Hallway(object):
 	def __init__(self,  sideA, sideB, room_indices=[], hallway_indices=[], char = ' '):
-		#sideA will always be the far left or the topmost.
+		#sideA will always be the leftmost or the uppermost.
 		#enforce alignment
-		self.associatedRoomIndexes = room_indices
-		self.associatedHallIndexes = hallway_indices
+		
+		self.associatedRoomss = room_indices
+		self.associatedHallways = hallway_indices
 		self.character = char
 		
 		if(sideA.isVerticallyAligned(sideB)):
@@ -24,4 +25,5 @@ class Hallway(object):
 					self.pointA = sideB
 					self.pointB = sideA
 			else:
+				print "Unable to work with a hallway setup"
 				raise Exception('Hallway','Hallways can only be a line')

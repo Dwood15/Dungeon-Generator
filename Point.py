@@ -6,8 +6,12 @@ class Point(object):
 	def __eq__(self, rhs):
 		return self.x == rhs.x and self.y == rhs.y
 	
+	def __str__(self):
+		return '(' + str(self.x) + ', '+ str(self.y) + ')' 
+
 	def isVerticallyAligned(self, rhs):
 		return self.x == rhs.x
 		
 	def isHorizontallyAligned(self, rhs):
 		return self.y == rhs.y
+
