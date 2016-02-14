@@ -2,7 +2,16 @@
 # -*-coding:Utf-8 -*
 
 import random
+import sets
+
 from Point import *
+
+#A utility class for describing the range of sizes of rooms
+class DimRange(object):
+	def __init__(self, x1, y1, x2, y2):
+		self.min = Point(x1, y1)
+		self.max = Point(x2, y2)
+
 
 class Room(object):
 	def __init__(self, map, minMaxRange, index=0, char='a'):
@@ -29,7 +38,18 @@ class Room(object):
 		#the character which represents each room
 		self.character = char
 	
+	def findMatchingRange(self, wall, roomB):
 	
+		if wall == 'left' or wall == 'right':
+			sharedPoints = sets.Set(range(self.TopLeft.y, self.BotRight.y+1))
+			sharedPoints &= sets.Set(range(roomB.TopLeft.y, roomB.BotRight.y+1))
+	
+		if wall == "upper" or wall == "lower":
+			sharedPoints = sets.Set(range(self.TopLeft.x, self.BotRight.x + 1))
+			sharedPoints &= sets.Set(range(roomB.TopLeft.x, roomB.BotRight.x + 1))
+
+		return sharedPoints
+			
 	def findHallwayDirectlyBetween(self, test):
 		for h in self.Hallways:
 			if test.Hallways.index(h) != None:

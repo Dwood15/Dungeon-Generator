@@ -60,11 +60,20 @@ class Map(object):
 				return False
 		return False
 
-	def createHallwayBetweenRooms(self, proximityList, room_b_index):	
-		for p in proximityList:
-			if(p != None):
-				pass
-		pass
+	'''
+	def traverseRoomsAndHallways(self, cameFrom=None, currentRoom=0):
+		#start at room zero
+		roomsTraversed = []
+		if currentRoom != 0 and self.rooms[currentRoom].
+			
+			return roomsTraversed.fromList(self.traverseRoomsAndHallways(currentRoom, ) )
+	'''
+		
+	#proximityList should NEVER include its own room in the list, so we shouldn't have to worry about that specific issue.
+	#def createHallwayBetweenRooms(self, room_a, room_b, proximityList):	
+	#	for p in proximityList:
+	#		if p[0] == room_b and p[1] != None:
+				
 		
 	def findNearestRoomsAndMakeHallways(self):
 		#search horizontally
@@ -82,7 +91,8 @@ class Map(object):
 					
 			print "Proximities found for room: %d with the following rooms:" %i
 			for p in self.proximities[i]:
-				print p
+				if p[1] != None: #and p[1][0] != None:
+					print p
 			
 			
 			
