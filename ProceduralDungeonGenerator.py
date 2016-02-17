@@ -4,7 +4,7 @@
 #external modules
 import random
 from array import *
-
+from collections import Counter
 #our modules/files
 from Point import *
 from Room import *
@@ -43,8 +43,9 @@ class Map(object):
 				self.rooms[i] = self.RollRoom(i)
 		
 		self.hallways = []
-		self.findNearestRoomsAndMakeHallways()
-				
+		self.proximities = self.makeLinearProximities()
+		self.shiftRoomsAsNeeded()
+		
 	def __str__(self):
 		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
 		
@@ -52,6 +53,13 @@ class Map(object):
 		for i in [x + y * self.width for x in xrange(room.TopLeft.x, room.BotRight.x) for y in xrange(room.TopLeft.y, room.BotRight.y)]:
 			self._map[i] = chr(ord(room.character)+ci)
 
+	def shiftRoomsAsNeeded(self):
+		print "The Filter: ",
+		
+		for proximList in self.proximities:
+			print [p for p in proximList if p[2] < 3]
+				
+			
 	def addHallToString(self, hall):	
 		vertPlus = 0
 		horPlus = 0
@@ -73,19 +81,6 @@ class Map(object):
 				return False
 		return False
 
-	'''
-	def traverseRoomsAndHallways(self, cameFrom=None, currentRoom=0):
-		#start at room zero
-		roomsTraversed = []
-		if currentRoom != 0 and self.rooms[currentRoom].
-			
-			return roomsTraversed.fromList(self.traverseRoomsAndHallways(currentRoom, ) )
-	'''
-		
-	#proximityList should NEVER include its own room in the list, so we shouldn't have to worry about that specific issue.
-	#def createHallwayBetweenRooms(self, room_a, room_b, proximityList):	
-	#	for p in proximityList:
-	#		if p[0] == room_b and p[1] != None:
 	def removeRoomsNotInDirectLine(self, proximities):
 		savedProximities = []
 		
@@ -98,8 +93,7 @@ class Map(object):
 					
 		return savedProximities
 			
-		
-	def findNearestRoomsAndMakeHallways(self):
+	def makeLinearProximities(self):
 		#search horizontally
 		proximities = []
 		for i in xrange(0, MAX_ROOM_NUMBER):
@@ -116,29 +110,9 @@ class Map(object):
 						proximities[i].append((j, baseProxim[0], baseProxim[1]))
 					
 			print "Proximities found for room: %d with the following rooms:" %i
-
-			tmpRange = len(proximities[i])
+			print proximities[i]
 			
-			if tmpRange > 0:
-				#print sorted(self.proximities[i], key=lambda x: (x[2], [1]))
-				proximities[i].sort(key=lambda x: (x[2], [1]))
-				self.removeRoomsNotInDirectLine(proximities[i])
-				print proximities[i]
-			else:
-				print "Room %d has no room in standard proximity!" %i
-			
-			for p in proximities[i]:
-				if not self.rooms[i].hasHallwayWith(self.rooms[p[0]]):
-						pointA = self.rooms[i].findAMatchingPoint(p[1], self.rooms[p[0]])
-						pointB = self.rooms[p[0]].findClosestPoint(pointA)
-						if  pointB is None:
-							print "Failed to find matching point between rooms: {0:2d} and {0:2d}".format(i, p[0])
-						else:
-							self.hallways.append(Hallway(pointA, pointB, [i, p[0]]))
-							hIdx = len(self.hallways)
-							self.rooms[i].addHallway(hIdx)
-							self.rooms[p[0]].addHallway(hIdx)
-							
+		return proximities	
 			
 	def RollRoom(self, index):
 		room = Room(self, minMaxRoomDims, index)
@@ -152,8 +126,6 @@ if __name__ == '__main__':
 		map.RollRoom(x)
 		map.addRoomToString(map.rooms[x], x)
 
-	for h in xrange(0, len(map.hallways)):
-		map.addHallToString(map.hallways[h])
 		
 	print map
 

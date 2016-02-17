@@ -74,9 +74,22 @@ class Room(object):
 				return 'left'
 			if pt.y < self.TopLeft.y:
 				return 'upper'
-			if isPointInside(pt.x, pt.y):
+			if self.isPointInside(pt.x, pt.y):
 				return 'inside'
-				
+		
+	def shiftRoom(direction, range):
+		range = random.randrange(1, range)
+		print "Attempting to shift range!"
+		
+		if direction == 'left':
+			self.TopLeft.x - range
+		if direction == 'upper':
+			self.TopLeft.y - range
+		if direction == 'lower':
+			self.BotRight.x + range
+		if direction == 'right':
+			self.BotRight.x + range
+			
 	def addHallway(self, hallwayIndex):
 		if not self.hasHallway:
 			self.hasHallway = True
