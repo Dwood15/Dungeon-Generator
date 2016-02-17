@@ -37,7 +37,8 @@ class Room(object):
 		
 		#the character which represents each room
 		self.character = char
-	
+		self.doors = []
+		
 	def findMatchingRange(self, wall, roomB):
 	
 		if wall == 'left' or wall == 'right':
@@ -68,26 +69,28 @@ class Room(object):
 		return not (self.TopLeft.x > test.BotRight.x or self.BotRight.x < test.TopLeft.x or self.TopLeft.y > test.BotRight.y or self.BotRight.y < test.TopLeft.y)
 		
 	#Find the wall closest to the one we're testing
-	def findClosestWallsAndTheirDistances(self, test, vertical = False):
-		if not vertical :
+	def findClosestWallsAndTheirDistances(self, test, axis):
+		if axis=='horizontal' :
 			#the higher it is, the firther to the right it is.
 			if self.TopLeft.x > test.BotRight.x:
-				return ("right", self.TopLeft.x - test.BotRight.x)
-			else:
-				return ("left", self.BotRight.x - test.TopLeft.x)
+				return ("left", abs(self.TopLeft.x - test.BotRight.x))
+			if self.TopLeft.x < test.BotRight.x:
+				return ("right", abs(self.BotRight.x - test.TopLeft.x))
 		else:
 			#the higher the number it is, the lower it is
 			if self.TopLeft.y > test.BotRight.y: 
-				return ("upper", self.TopLeft.y - test.BotRight.y)
+				return ("upper", abs(self.TopLeft.y - test.BotRight.y))
 			else:
-				return ("lower", self.BotRight.y - test.TopLeft.y)
+				return ("lower", abs(self.BotRight.y - test.TopLeft.y))
 				
-	def sharesAxis(self, test):
+	def sharedAxis(self, test):
 		for i in xrange(self.TopLeft.y, self.BotRight.y + 1):
 			if test.isPointInside(test.TopLeft.x, i):
-				return self.findClosestWallsAndTheirDistances(test)
+				return 'horizontal'
+#				return self.findClosestWallsAndTheirDistances(test)
 				
 		for i in xrange(self.TopLeft.x, self.BotRight.x + 1):
 			if test.isPointInside(i, test.BotRight.y):
-				return self.findClosestWallsAndTheirDistances(test, True)
+				return 'vertical'
+#				return self.findClosestWallsAndTheirDistances(test, True)
 		return None

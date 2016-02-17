@@ -30,7 +30,7 @@ class Map(object):
 		self.height = height
 		
 		#iterate over the map and fill it with wall tiles
-		self._map = ["+" for i in xrange(0, width * height)] 
+		self._map = ["-" for i in xrange(0, width * height)] 
 
 		self.rooms = [Room(self, minMaxRoomDims)] * MAX_ROOM_NUMBER
 		
@@ -59,21 +59,6 @@ class Map(object):
 			if(self.rooms[index] == None):
 				return False
 		return False
-
-	'''
-	def traverseRoomsAndHallways(self, cameFrom=None, currentRoom=0):
-		#start at room zero
-		roomsTraversed = []
-		if currentRoom != 0 and self.rooms[currentRoom].
-			
-			return roomsTraversed.fromList(self.traverseRoomsAndHallways(currentRoom, ) )
-	'''
-		
-	#proximityList should NEVER include its own room in the list, so we shouldn't have to worry about that specific issue.
-	#def createHallwayBetweenRooms(self, room_a, room_b, proximityList):	
-	#	for p in proximityList:
-	#		if p[0] == room_b and p[1] != None:
-				
 		
 	def findNearestRoomsAndMakeHallways(self):
 		#search horizontally
@@ -87,7 +72,10 @@ class Map(object):
 			for j in xrange(0, MAX_ROOM_NUMBER):
 				if i != j:
 					#print 'Index i: {0:2d} Index j: {1:2d}'.format(i, j)
-					self.proximities[i].append((j, self.rooms[i].sharesAxis(self.rooms[j])))
+					sA = self.rooms[i].sharedAxis(self.rooms[j])
+					p = self.rooms[i].findClosestWallsAndTheirDistances(self.rooms[j], sA)
+					if p != None:
+						self.proximities[i].append((j, p[0], p[1]))
 					
 			print "Proximities found for room: %d with the following rooms:" %i
 			for p in self.proximities[i]:
