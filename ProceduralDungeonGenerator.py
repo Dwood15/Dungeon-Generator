@@ -1,209 +1,145 @@
 #!/usr/bin/env python
 # -*-coding:Utf-8 -*
 
+#external modules
 import random
-from Room import *
+from array import *
 
-NUMBERROOM = 8
+#our modules/files
+from Point import *
+from Room import *
+from Hallway import *
+
+#Move min max to own named variables
+#Min room #, max room #
+MAX_ROOM_NUMBER = 16
+MAX_DIST_FOR_HALLWAYS = 30
+
+MIN_ROOM_X = 4
+MAX_ROOM_X = 8
+MIN_ROOM_Y = 4
+MAX_ROOM_Y = 8
+
+#A room should be 4x4 at the smallest, and 8x8 at largest
+minMaxRoomDims = DimRange(MIN_ROOM_X, MIN_ROOM_Y, MAX_ROOM_X, MAX_ROOM_Y)
+DIRECTIONS = ['right', 'left', 'upper', 'lower']
 
 class Map(object):
-    """docstring for Map"""
-    # def __init__(self, width, height):
-    #     self.width = width
-    #     self.height = height
-    #     self._map = [["#" for x in xrange(self.width)] for y in xrange(self.height)] 
-    #     self.room = [None] * NUMBERROOM
+	"""docstring for Map"""
+	def __init__(self, width, height):
+		self.width = width
+		self.height = height
+		
+		#iterate over the map and fill it with wall tiles
+		self._map = ["-" for i in xrange(0, width * height)] 
 
-    # def __str__(self):
-    #     strMap = ""
-    #     for y in xrange(self.height):
-    #         for x in xrange(self.width):
-    #             strMap += self._map[y][x]
-    #         strMap += "\n"
-    #     return strMap
+		self.rooms = [Room(self, minMaxRoomDims)] * MAX_ROOM_NUMBER
+		
+		for i in xrange(0, MAX_ROOM_NUMBER):
+			self.rooms[i].myIndex = i
+			#print "Testing to see if room: %d intersects with another room" %i
+			while(self.isRoomIntersectingAnotherRoom(i)):
+				self.rooms[i] = self.RollRoom(i)
+				
+		self.proximities = []
+		self.buildAndSortProximities()
+		
+		self.hallways = []
+		self.makeHallways(MAX_DIST_FOR_HALLWAYS)
+		
+	def __str__(self):
+		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
+		
+	def addRoomToString(self, room, ci):
+		for i in [x + y * self.width for x in xrange(room.TopLeft.x, room.BotRight.x) for y in xrange(room.TopLeft.y, room.BotRight.y)]:
+			self._map[i] = chr(ord(room.character)+ci)
 
-    # def addRoom(self, room):
-    #     if self._map[room.top][room.left] != "#":
-    #         return None
-
-    #     self._map[room.top][room.left] = " "
-    #     currentWidth = 1
-    #     currentHeight = 1
-    #     while currentHeight < 4:
-    #         if self.growBottom(room, currentHeight, currentWidth):
-    #             currentHeight += 1
-    #         else:
-    #             return None
-
-    #     while currentWidth < 4:
-    #         if self.growRight(room, currentHeight, currentWidth):
-    #             currentWidth += 1
-    #         else:
-    #             return None
-
-    #     stopRight = None
-    #     stopBottom = None
-    #     while not stopRight and not stopBottom:
-    #         if currentWidth < room.width and not stopRight:
-    #             if self.growRight(room, currentHeight, currentWidth): 
-    #                 currentWidth += 1
-    #             else:
-    #                 stopRight = True
-    #                 room.width = currentWidth
-
-    #         if currentHeight < room.height and not stopBottom:
-    #             if self.growBottom(room, currentHeight, currentWidth): 
-    #                 currentHeight += 1
-    #             else:
-    #                 stopRight = True
-    #                 room.height = currentHeight
-
-    #     return room
-
-    # def growRight(self, room, currentHeight, currentWidth):
-    #     for x in xrange(1,9):
-    #         if currentHeight >= x:
-    #             if self._map[room.top + currentHeight - x][room.left + currentWidth] == "#":
-    #                 self._map[room.top + currentHeight - x][room.left + currentWidth] = " "
-    #             else:
-    #                 return False
-    #     return True
-
-    # def growBottom(self, room, currentHeight, currentWidth):
-    #     for x in xrange(1,9):
-    #         if currentWidth >= x:
-    #             if self._map[room.top + currentHeight][room.left + currentWidth - x] == "#":
-    #                 self._map[room.top + currentHeight][room.left + currentWidth - x] = " "
-    #             else:
-    #                 return False
-    #     return True
-
-    # def hallway(self, room1, room2, width):
-
-    
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self._map = ["#" for i in xrange(0, width * height)]
-        # self._map = [["#" for x in xrange(self.width)] for y in xrange(self.height)] 
-        self.room = [None] * NUMBERROOM
-
-    # def addRoom(self, top, left, height, width):
-    #     for i in [(x + y * self.width) for x in xrange(left, left + width) for y in xrange(top, top + height)]:
-    #         self._map[i] = " "
-
-    def addRoom(self, room):
-        for i in [(x + y * self.width) for x in xrange(room.left, room.left + room.width) for y in xrange(room.top, room.top + room.height)]:
-            self._map[i] = " "
-
-    # def addRoom(self, room):
-    #     if self[room.left, room.top] != "#":
-    #         return None
-
-    #     self[room.left, room.top] = "*"
-    #     currentWidth = 1
-    #     currentHeight = 1
-    #     while currentHeight < 6:
-    #         if self.growBottom(room, currentHeight, currentWidth):
-    #             currentHeight += 1
-    #         else:
-    #             return None
-
-    #     while currentWidth < 6:
-    #         if self.growRight(room, currentHeight, currentWidth):
-    #             currentWidth += 1
-    #         else:
-    #             return None
-
-    #     stopRight = None
-    #     stopBottom = None
-    #     while not stopRight and not stopBottom:
-    #         if currentWidth < room.width and not stopRight:
-    #             if self.growRight(room, currentHeight, currentWidth): 
-    #                 currentWidth += 1
-    #             else:
-    #                 stopRight = True
-    #                 room.width = currentWidth
-
-    #         if currentHeight < room.height and not stopBottom:
-    #             if self.growBottom(room, currentHeight, currentWidth): 
-    #                 currentHeight += 1
-    #             else:
-    #                 stopRight = True
-    #                 room.height = currentHeight
-
-    #     return room
-
-    def growRight(self, room, currentHeight, currentWidth):
-        for x in xrange(1, currentHeight):
-            if currentWidth >= 2:
-                if x == 1 or x == currentHeight:
-                    if self[room.left + currentWidth, room.top + currentHeight - x] == "#":
-                        self[room.left + currentWidth, room.top + currentHeight - x] = "*"
-                    else:
-                        return False
-                else:
-                    if self[room.left + currentWidth, room.top + currentHeight - x] == "#":
-                        self[room.left + currentWidth - 1, room.top + currentHeight - x] = " "
-                        self[room.left + currentWidth, room.top + currentHeight - x] = "*"
-                    else:
-                        return False
-        return True
-
-    def growBottom(self, room, currentHeight, currentWidth):
-        for x in xrange(1, currentWidth):
-            if currentHeight >= 2:
-                if x == 1 or x == currentWidth:
-                    if self[room.left + currentWidth - x, room.top + currentHeight] == "#":
-                        self[room.left + currentWidth - x, room.top + currentHeight] = "*"
-                    else:
-                        return False
-                else:
-                    if self[room.left + currentWidth - x, room.top + currentHeight] == "#":
-                        self[room.left + currentWidth - x - 1, room.top + currentHeight] = " "
-                        self[room.left + currentWidth - x, room.top + currentHeight] = "*"
-                    else:
-                        return False
-        return True
-
-    def __str__(self):
-        return "\n".join(["".join(self._map[start:start + self.width]) \
-                for start in xrange(0, self.height * self.width, self.width)])
-
-    def __getitem__(self, i):
-        x, y = i
-        return self._map[x + y * self.width]
-
-    def __setitem__(self, i, val):
-        x, y = i
-        self._map[x + y * self.width] = val
+	def addHallwaysToString(self):
+		for l, item in enumerate(self.hallways):
+			h = self.hallways[l]
+			#print "Adding hallway: %d to string" %l,
+			#print " Hallway verticality: " + str(h.isVertical)
+			if(h.isVertical):
+				for i in xrange(h.pointA.y - 1, h.pointB.y + 1):
+					idx = (i * self.width) + h.pointA.x
+					self._map[idx] = chr(ord('A')+l)
+			else:
+				for i in xrange(h.pointA.x - 1, h.pointB.x + 1):
+					self._map[i + (h.pointA.y * self.width)] = chr(ord('A')+l)
+	def isRoomIntersectingAnotherRoom(self, index):
+		for i in xrange(0, MAX_ROOM_NUMBER):
+			#'''and (self.rooms[index] != None)''' 
+			if (i != index) and (self.rooms[i] != None):
+				if (self.rooms[index].intersects(self.rooms[i])):
+					return True
+			#Depends on the linear insertion into the room array object
+			if(self.rooms[index] == None):
+				return False
+		return False
+		
+	def removeRoomsNotInDirectLine(self, proximities):
+		savedProximities = []
+		
+		for d in DIRECTIONS:
+			foundFirst = False
+			for p in proximities:
+				if p[1] == d  and not foundFirst:
+					savedProximities.append(p)
+					foundFirst = True
+					
+		return savedProximities
+		
+	def buildAndSortProximities(self):
+		#search horizontally
+		self.proximities = []
+		
+		for i in xrange(0, MAX_ROOM_NUMBER):
+			#list rooms in order of proximity.
+			self.proximities.append([])
+			
+			#search for horizontal
+			for j in xrange(0, MAX_ROOM_NUMBER):
+				if i != j:
+					#print 'Index i: {0:2d} Index j: {1:2d}'.format(i, j)
+					sA = self.rooms[i].sharedAxis(self.rooms[j])
+					p = self.rooms[i].findClosestWallsAndTheirDistances(self.rooms[j], sA)
+					if p != None:
+						self.proximities[i].append((j, p[0], p[1]))
+					
+			#print "Proximities found for room: %d with the following rooms:" %i
+			self.proximities[i].sort(key=lambda x: (x[2], [1]))
+			self.proximities[i] = self.removeRoomsNotInDirectLine(self.proximities[i])
+			
+			for p in xrange(0, len(self.proximities[i])):
+				if self.proximities[i][p][1] == None: #and p[1][0] != None:
+					del self.proximities[i][p]
+				#else:
+				#	print self.proximities[i][p]
+			
+	def makeHallways(self, max_distance):
+		#print "Making Hallways"
+		for i in xrange(0, len(self.proximities)):
+			for x in self.proximities[i]:
+				if x[2] < max_distance and not self.rooms[i].sharesHallwayWith(x[0]):
+					(ptA, ptB) = self.rooms[i].makeDoors(x[1], self.rooms[x[0]])
+					self.rooms[i].addDoor(ptA, x[0])
+					self.rooms[x[0]].addDoor(ptB, i)
+					self.hallways.append(Hallway(ptA, ptB))
+				
+	def RollRoom(self, index):
+		room = Room(self, minMaxRoomDims, index)
+		return room 
+		
+		# def hallway(self, room1, room2, width):
 
 if __name__ == '__main__':
-    map = Map(80, 24)
+	map = Map(80, 24)
+	for x in xrange(0, MAX_ROOM_NUMBER):
+		map.RollRoom(x)
+		map.addRoomToString(map.rooms[x], x)
 
-    for x in xrange(0, NUMBERROOM):
-        # width = random.randrange(4, 8)
-        # height = random.randrange(4, 8)
-        # left = random.randrange(1, map.width - width)
-        # top = random.randrange(1, map.height - height)
-        # map.addRoom(top, left, height, width)
+	map.addHallwaysToString()
+	
+	print map
 
-        map.room[x] = Room(map.height, map.width)
-        map.addRoom(map.room[x])
-
-    print map
-
-    # Console 80 * 24
-
-    # self._map = ["#" for i in xrange(0, width * height)]
-
-    # return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
-
-    #     for i in [(x + y * self.width) for x in xrange(room.left, room.left + room.height) for y in xrange(room.top, room.top + room.height)]:
-    #         self._map[i] = " "
-'''
-for s in range(0,80,5):
-    for t in range(0,24,5):
-        print "#" + 0.6215*t-11.362*s**0.16+0.396*t*s**0.16, '\t',
-    print
-'''
+	# Console 80 * 24

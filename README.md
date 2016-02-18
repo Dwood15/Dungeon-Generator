@@ -3,6 +3,11 @@
 This program will randomly generate a dungeon. 
 The generated dungeon will be fully made with characters.
 
+Created by Silvere and Dason Woodhouse
+Lower case letters are 'rooms'
+Upper case letters and symbols are 'hallways'
+
+
 Requirements:
 
  - The total map size will be 80x24.
