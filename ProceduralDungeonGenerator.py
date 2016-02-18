@@ -13,6 +13,7 @@ from Hallway import *
 #Move min max to own named variables
 #Min room #, max room #
 MAX_ROOM_NUMBER = 8
+MAX_DIST_FOR_HALLWAYS = 4
 
 MIN_ROOM_X = 4
 MAX_ROOM_X = 8
@@ -42,8 +43,10 @@ class Map(object):
 				
 		self.proximities = []
 		self.buildAndSortProximities()
-				
-		self.makeHallways()
+		
+		self.hallways = []
+		self.makeHallways(MAX_DIST_FOR_HALLWAYS)
+		
 	def __str__(self):
 		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
 		
@@ -51,6 +54,18 @@ class Map(object):
 		for i in [x + y * self.width for x in xrange(room.TopLeft.x, room.BotRight.x) for y in xrange(room.TopLeft.y, room.BotRight.y)]:
 			self._map[i] = chr(ord(room.character)+ci)
 
+	def addHallwaysToString(self):
+		for l, item in enumerate(self.hallways):
+			h = self.hallways[l]
+			print "Adding hallway: %d to string" %l,
+			print " Hallway verticality: " + str(h.isVertical)
+			if(h.isVertical):
+				for i in xrange(h.pointA.y, h.pointB.y + 1):
+					idx = (i * self.width) + h.pointA.x
+					self._map[idx] = chr(ord('A')+l)
+			else:
+				for i in xrange(h.pointA.x, h.pointB.x + 1):
+					self._map[i + (h.pointA.y * self.width)] = chr(ord('A')+l)
 	def isRoomIntersectingAnotherRoom(self, index):
 		for i in xrange(0, MAX_ROOM_NUMBER):
 			#'''and (self.rooms[index] != None)''' 
@@ -76,7 +91,7 @@ class Map(object):
 		
 	def buildAndSortProximities(self):
 		#search horizontally
-		self.proximities.clear()
+		self.proximities = []
 		
 		for i in xrange(0, MAX_ROOM_NUMBER):
 			#list rooms in order of proximity.
@@ -105,10 +120,11 @@ class Map(object):
 		print "Making Hallways"
 		for i in xrange(0, len(self.proximities)):
 			for x in self.proximities[i]:
-				if x[2] < 15:
+				if x[2] < max_distance:
 					(ptA, ptB) = self.rooms[i].makeDoors(x[1], self.rooms[x[0]])
-					self.rooms[i].addDoor(pt)
-					self.rooms[x[0]].addDoor(ptB)
+					self.rooms[i].addDoor(ptA, x[0])
+					self.rooms[x[0]].addDoor(ptB, i)
+					self.hallways.append(Hallway(ptA, ptB))
 				
 	def RollRoom(self, index):
 		room = Room(self, minMaxRoomDims, index)
@@ -122,6 +138,8 @@ if __name__ == '__main__':
 		map.RollRoom(x)
 		map.addRoomToString(map.rooms[x], x)
 
+	map.addHallwaysToString()
+	
 	print map
 
 	# Console 80 * 24

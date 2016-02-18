@@ -18,8 +18,10 @@ class Door(object):
 		self.location = pt #Point object		
 
 	def __eq__(self, rhs):
-		if isInstance(rhs, "Door"):
-			
+		if isinstance(rhs, Door):
+			return self.location == rhs.location
+		elif isinstance(rhs, Point):
+			return self.location == rhs
 		else:
 			return NotImplementedError()
 		
@@ -73,7 +75,7 @@ class Room(object):
 		sp = self.findMatchingRange(wall, roomB)
 		
 		ptReturn = random.choice(tuple(sp)) 
-		print "Points in common: " + str(sharedPoints),
+		print "Points in common: " + str(sp),
 		print " ptReturn : {0:2d}".format(ptReturn)
 		
 		if wall == 'left':
@@ -93,13 +95,13 @@ class Room(object):
 		
 		return (pt, bPt)
 		
-	#try to create a door at that point.
+	#try to create a door at the point.
 	def addDoor(self, pt, testIdx):
 		#check to see if we are already directly connected
 		if self.roomsAttachedTo.count(testIdx) == 0:
-			for d in self.doors:
-				if(d.location == point):
+			if self.doors.count(pt) > 0:
 					return
+			self.roomsAttachedTo.append(testIdx)
 			self.doors.append(Door(pt))
 		else:
 			return 
