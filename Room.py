@@ -71,12 +71,15 @@ class Room(object):
 				return (True, h)
 		return (False, None, None)
 		
+	def sharesHallwayWith(self, roomIndex):
+		return (self.roomsAttachedTo.count(roomIndex) > 0)
+		
 	def makeDoors(self, wall, roomB):
 		sp = self.findMatchingRange(wall, roomB)
 		
 		ptReturn = random.choice(tuple(sp)) 
-		print "Points in common: " + str(sp),
-		print " ptReturn : {0:2d}".format(ptReturn)
+		#print "Points in common: " + str(sp),
+		#print " ptReturn : {0:2d}".format(ptReturn)
 		
 		if wall == 'left':
 			pt = Point(self.TopLeft.x, ptReturn)
@@ -91,7 +94,7 @@ class Room(object):
 			pt = Point(ptReturn, self.BotRight.y)
 			bPt = Point(ptReturn, roomB.TopLeft.y)
 		
-		print "Putting doors at: " + str (pt) + " and: " + str(bPt)
+		#print "Putting doors at: " + str (pt) + " and: " + str(bPt)
 		
 		return (pt, bPt)
 		

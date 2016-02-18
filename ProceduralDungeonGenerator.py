@@ -57,8 +57,8 @@ class Map(object):
 	def addHallwaysToString(self):
 		for l, item in enumerate(self.hallways):
 			h = self.hallways[l]
-			print "Adding hallway: %d to string" %l,
-			print " Hallway verticality: " + str(h.isVertical)
+			#print "Adding hallway: %d to string" %l,
+			#print " Hallway verticality: " + str(h.isVertical)
 			if(h.isVertical):
 				for i in xrange(h.pointA.y - 1, h.pointB.y + 1):
 					idx = (i * self.width) + h.pointA.x
@@ -106,7 +106,7 @@ class Map(object):
 					if p != None:
 						self.proximities[i].append((j, p[0], p[1]))
 					
-			print "Proximities found for room: %d with the following rooms:" %i
+			#print "Proximities found for room: %d with the following rooms:" %i
 			self.proximities[i].sort(key=lambda x: (x[2], [1]))
 			self.proximities[i] = self.removeRoomsNotInDirectLine(self.proximities[i])
 			
@@ -117,10 +117,10 @@ class Map(object):
 				#	print self.proximities[i][p]
 			
 	def makeHallways(self, max_distance):
-		print "Making Hallways"
+		#print "Making Hallways"
 		for i in xrange(0, len(self.proximities)):
 			for x in self.proximities[i]:
-				if x[2] < max_distance:
+				if x[2] < max_distance and not self.rooms[i].sharesHallwayWith(x[0]):
 					(ptA, ptB) = self.rooms[i].makeDoors(x[1], self.rooms[x[0]])
 					self.rooms[i].addDoor(ptA, x[0])
 					self.rooms[x[0]].addDoor(ptB, i)
