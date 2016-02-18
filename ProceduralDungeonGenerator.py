@@ -12,7 +12,7 @@ from Hallway import *
 
 #Move min max to own named variables
 #Min room #, max room #
-MAX_ROOM_NUMBER = 8
+MAX_ROOM_NUMBER = 16
 MAX_DIST_FOR_HALLWAYS = 30
 
 MIN_ROOM_X = 4
@@ -60,7 +60,7 @@ class Map(object):
 			print "Adding hallway: %d to string" %l,
 			print " Hallway verticality: " + str(h.isVertical)
 			if(h.isVertical):
-				for i in xrange(h.pointA.y, h.pointB.y + 1):
+				for i in xrange(h.pointA.y - 1, h.pointB.y + 1):
 					idx = (i * self.width) + h.pointA.x
 					self._map[idx] = chr(ord('A')+l)
 			else:
