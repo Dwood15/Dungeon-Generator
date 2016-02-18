@@ -12,7 +12,17 @@ class DimRange(object):
 		self.min = Point(x1, y1)
 		self.max = Point(x2, y2)
 
+class Door(object):
+	#in order to be a valid passage object we must be attached at the hallway.
+	def __init__(self, pt):
+		self.location = pt #Point object		
 
+	def __eq__(self, rhs):
+		if isInstance(rhs, "Door"):
+			
+		else:
+			return NotImplementedError()
+		
 class Room(object):
 	def __init__(self, map, minMaxRange, index=0, char='a'):
 		#far left of room - should always be the max range away from the outer wall
@@ -32,12 +42,13 @@ class Room(object):
 		
 		#If it has at least ONE hallway.
 		self.HasHallway = False
-		#just a list of indices.
-		self.Hallways = []
 		
 		#the character which represents each room
 		self.character = char
+		
+		#rooms which we want to make
 		self.doors = []
+		self.roomsAttachedTo = []
 		
 	def findMatchingRange(self, wall, roomB):
 	
@@ -58,11 +69,47 @@ class Room(object):
 				return (True, h)
 		return (False, None, None)
 		
+	def makeDoors(self, wall, roomB):
+		sp = self.findMatchingRange(wall, roomB)
+		
+		ptReturn = random.choice(tuple(sp)) 
+		print "Points in common: " + str(sharedPoints),
+		print " ptReturn : {0:2d}".format(ptReturn)
+		
+		if wall == 'left':
+			pt = Point(self.TopLeft.x, ptReturn)
+			bPt = Point(roomB.BotRight.x, ptReturn)
+		if wall == 'right':
+			pt = Point(self.BotRight.x, ptReturn)
+			bPt = Point(roomB.TopLeft.x, ptReturn)
+		if wall == 'upper':
+			pt = Point(ptReturn, self.TopLeft.y)
+			bPt = Point(ptReturn, roomB.BotRight.y)
+		if wall == 'lower':
+			pt = Point(ptReturn, self.BotRight.y)
+			bPt = Point(ptReturn, roomB.TopLeft.y)
+		
+		print "Putting doors at: " + str (pt) + " and: " + str(bPt)
+		
+		return (pt, bPt)
+		
+	#try to create a door at that point.
+	def addDoor(self, pt, testIdx):
+		#check to see if we are already directly connected
+		if self.roomsAttachedTo.count(testIdx) == 0:
+			for d in self.doors:
+				if(d.location == point):
+					return
+			self.doors.append(Door(pt))
+		else:
+			return 
+			
 	def isPointInside(self, x, y):
 		if((x >= self.TopLeft.x and x <= self.BotRight.x) and (y >= self.TopLeft.y and y <= self.BotRight.y)):
 			return True
 		else:
 			return False
+			
 	#return true if there is intersection between this room
 	# and another room - this tests to see if the top is lower than the lowest of the one to test.
 	def intersects(self, test):
@@ -70,19 +117,22 @@ class Room(object):
 		
 	#Find the wall closest to the one we're testing
 	def findClosestWallsAndTheirDistances(self, test, axis):
-		if axis=='horizontal' :
-			#the higher it is, the firther to the right it is.
-			if self.TopLeft.x > test.BotRight.x:
-				return ("left", abs(self.TopLeft.x - test.BotRight.x))
-			if self.TopLeft.x < test.BotRight.x:
-				return ("right", abs(self.BotRight.x - test.TopLeft.x))
-		else:
-			#the higher the number it is, the lower it is
-			if self.TopLeft.y > test.BotRight.y: 
-				return ("upper", abs(self.TopLeft.y - test.BotRight.y))
+		if axis != None:
+			if axis=='horizontal' :
+				#the higher it is, the firther to the right it is.
+				if self.TopLeft.x > test.BotRight.x:
+					return ("left", abs(self.TopLeft.x - test.BotRight.x))
+				if self.TopLeft.x < test.BotRight.x:
+					return ("right", abs(self.BotRight.x - test.TopLeft.x))
 			else:
-				return ("lower", abs(self.BotRight.y - test.TopLeft.y))
-				
+				#the higher the number it is, the lower it is
+				if self.TopLeft.y > test.BotRight.y: 
+					return ("upper", abs(self.TopLeft.y - test.BotRight.y))
+				else:
+					return ("lower", abs(self.BotRight.y - test.TopLeft.y))
+		else:
+			return None
+			
 	def sharedAxis(self, test):
 		for i in xrange(self.TopLeft.y, self.BotRight.y + 1):
 			if test.isPointInside(test.TopLeft.x, i):

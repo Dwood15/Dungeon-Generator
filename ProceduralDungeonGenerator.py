@@ -21,7 +21,7 @@ MAX_ROOM_Y = 8
 
 #A room should be 4x4 at the smallest, and 8x8 at largest
 minMaxRoomDims = DimRange(MIN_ROOM_X, MIN_ROOM_Y, MAX_ROOM_X, MAX_ROOM_Y)
-
+DIRECTIONS = ['right', 'left', 'upper', 'lower']
 
 class Map(object):
 	"""docstring for Map"""
@@ -39,9 +39,11 @@ class Map(object):
 			#print "Testing to see if room: %d intersects with another room" %i
 			while(self.isRoomIntersectingAnotherRoom(i)):
 				self.rooms[i] = self.RollRoom(i)
-		
-		self.hallways = self.findNearestRoomsAndMakeHallways()
 				
+		self.proximities = []
+		self.buildAndSortProximities()
+				
+		self.makeHallways()
 	def __str__(self):
 		return "\n".join(["".join(self._map[start:start + self.width]) for start in xrange(0, self.height * self.width, self.width)])
 		
@@ -60,9 +62,21 @@ class Map(object):
 				return False
 		return False
 		
-	def findNearestRoomsAndMakeHallways(self):
+	def removeRoomsNotInDirectLine(self, proximities):
+		savedProximities = []
+		
+		for d in DIRECTIONS:
+			foundFirst = False
+			for p in proximities:
+				if p[1] == d  and not foundFirst:
+					savedProximities.append(p)
+					foundFirst = True
+					
+		return savedProximities
+		
+	def buildAndSortProximities(self):
 		#search horizontally
-		self.proximities = []
+		self.proximities.clear()
 		
 		for i in xrange(0, MAX_ROOM_NUMBER):
 			#list rooms in order of proximity.
@@ -78,29 +92,24 @@ class Map(object):
 						self.proximities[i].append((j, p[0], p[1]))
 					
 			print "Proximities found for room: %d with the following rooms:" %i
-			for p in self.proximities[i]:
-				if p[1] != None: #and p[1][0] != None:
-					print p
+			self.proximities[i].sort(key=lambda x: (x[2], [1]))
+			self.proximities[i] = self.removeRoomsNotInDirectLine(self.proximities[i])
 			
+			for p in xrange(0, len(self.proximities[i])):
+				if self.proximities[i][p][1] == None: #and p[1][0] != None:
+					del self.proximities[i][p]
+				#else:
+				#	print self.proximities[i][p]
 			
-			
-	#index_a and b are the indexes to the two rooms we want to match up.
-	def MakeHallway(self, index_a, index_b, Vertical = False):
-		AvailablePoints = []
-		if(Vertical):
-			self.rooms[index_a].sharesAxis(index_b)
-			AvailablePoints.append(X)
-		else:
-			for Y in xrange(self.rooms[index_a].TopLeft.y, self.rooms[index_a].BotRight.y + 1):
-				if self.rooms[index_b].isPointInside(Y, self.rooms[index_b].BotRight.x):
-					AvailablePoints.append(Y)
+	def makeHallways(self, max_distance):
+		print "Making Hallways"
+		for i in xrange(0, len(self.proximities)):
+			for x in self.proximities[i]:
+				if x[2] < 15:
+					(ptA, ptB) = self.rooms[i].makeDoors(x[1], self.rooms[x[0]])
+					self.rooms[i].addDoor(pt)
+					self.rooms[x[0]].addDoor(ptB)
 				
-		for i in AvailablePoints:
-			if Vertical:
-				print "Vertical room, roomA: %d" 
-			print "Available  Point: %d" %i
-		
-		
 	def RollRoom(self, index):
 		room = Room(self, minMaxRoomDims, index)
 		return room 

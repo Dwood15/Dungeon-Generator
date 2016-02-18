@@ -1,5 +1,5 @@
 class Hallway(object):
-	def __init__(self,  sideA, sideB, room_indices=[], hallway_indices=[], char = ' '):
+	def __init__(self,  sideA, sideB, char = ' '):
 		#sideA will always be the far left or the topmost.
 		#enforce alignment
 		self.associatedRoomIndexes = room_indices
