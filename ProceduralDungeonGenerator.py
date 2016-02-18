@@ -13,7 +13,7 @@ from Hallway import *
 #Move min max to own named variables
 #Min room #, max room #
 MAX_ROOM_NUMBER = 8
-MAX_DIST_FOR_HALLWAYS = 4
+MAX_DIST_FOR_HALLWAYS = 30
 
 MIN_ROOM_X = 4
 MAX_ROOM_X = 8
@@ -64,7 +64,7 @@ class Map(object):
 					idx = (i * self.width) + h.pointA.x
 					self._map[idx] = chr(ord('A')+l)
 			else:
-				for i in xrange(h.pointA.x, h.pointB.x + 1):
+				for i in xrange(h.pointA.x - 1, h.pointB.x + 1):
 					self._map[i + (h.pointA.y * self.width)] = chr(ord('A')+l)
 	def isRoomIntersectingAnotherRoom(self, index):
 		for i in xrange(0, MAX_ROOM_NUMBER):
