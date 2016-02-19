@@ -12,8 +12,8 @@ from Hallway import *
 
 #Move min max to own named variables
 #Min room #, max room #
-MAX_ROOM_NUMBER = 16
-MAX_DIST_FOR_HALLWAYS = 30
+MAX_ROOM_NUMBER = 8
+MAX_DIST_FOR_HALLWAYS = 40
 
 MIN_ROOM_X = 4
 MAX_ROOM_X = 8
