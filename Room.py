@@ -136,14 +136,29 @@ class Room(object):
 				else:
 					return ("lower", abs(self.BotRight.y - test.TopLeft.y))
 		else:
-			return None
-			
-	def sharedAxis(self, test):
+                        return None
+	
+	def shiftMe(self, direction, amount):
+		if direction == "left":
+			self.TopLeft.x -= amount
+			self.BotRight.x -= amount
+		elif direction == "right":
+			self.Topleft.x += amount
+			self.BotRight.x += amount			
+		elif direction == "up":
+			self.TopLeft.y -= amount
+			self.BotRight.y -= amount
+		elif direction == "down":
+			self.TopLeft.y += amount
+			self.BotRight.y += amount
+		else: 
+			print "Error, invalid input: "
+
+        def sharedAxis(self, test):
 		for i in xrange(self.TopLeft.y, self.BotRight.y + 1):
 			if test.isPointInside(test.TopLeft.x, i):
 				return 'horizontal'
-#				return self.findClosestWallsAndTheirDistances(test)
-				
+
 		for i in xrange(self.TopLeft.x, self.BotRight.x + 1):
 			if test.isPointInside(i, test.BotRight.y):
 				return 'vertical'

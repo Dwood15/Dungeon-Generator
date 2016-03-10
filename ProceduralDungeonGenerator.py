@@ -12,7 +12,7 @@ from Hallway import *
 
 #Move min max to own named variables
 #Min room #, max room #
-MAX_ROOM_NUMBER = 8
+MAX_ROOM_NUMBER = 4
 MAX_DIST_FOR_HALLWAYS = 40
 
 MIN_ROOM_X = 4
@@ -66,6 +66,7 @@ class Map(object):
 			else:
 				for i in xrange(h.pointA.x - 1, h.pointB.x + 1):
 					self._map[i + (h.pointA.y * self.width)] = chr(ord('A')+l)
+
 	def isRoomIntersectingAnotherRoom(self, index):
 		for i in xrange(0, MAX_ROOM_NUMBER):
 			#'''and (self.rooms[index] != None)''' 
@@ -86,36 +87,76 @@ class Map(object):
 				if p[1] == d  and not foundFirst:
 					savedProximities.append(p)
 					foundFirst = True
-					
 		return savedProximities
+
+        def getRoomProximities(self, i):
+                #search for horizontal
+		for j in xrange(0, MAX_ROOM_NUMBER):
+			if i != j:
+				#print 'Index i: {0:2d} Index j: {1:2d}'.format(i, j)
+				sA = self.rooms[i].sharedAxis(self.rooms[j])
+				p = self.rooms[i].findClosestWallsAndTheirDistances(self.rooms[j], sA)
+				if p != None:
+					self.proximities[i].append((j, p[0], p[1]))
+                                        
+                #print "Proximities found for room: %d with the following rooms:" %i
+		self.proximities[i].sort(key=lambda x: (x[2], [1]))
+		self.proximities[i] = self.removeRoomsNotInDirectLine(self.proximities[i])
 		
+		for p in xrange(0, len(self.proximities[i])):
+			if self.proximities[i][p][1] == None:
+				del self.proximities[i][p]
+
+        def shiftRoomAsNeeded(self, i):
+                if len(self.proximities[i]) < 0:
+                        return
+                elif MAX_ROOM_NUMBER == 1:
+                        return
+                
+                shiftLeft = False
+                shiftUp = False
+                
+                leftMapWallDist = abs(1 - self.Rooms[i].TopLeft.x)
+                rightMapWallDist = abs((self.width-1) - self.Rooms[i].BotRight.x)
+
+                if(leftMapWallDist > rightMapWallDist):
+                        shiftLeft = True
+        
+                topMapWallDist = abs(1 - self.Rooms[i].TopLeft.y)
+                botMapWallDist = abs((self.height - 1) - self.Rooms[i].BotRight.y)
+
+                if(topMapWallDist > botMapWallDist):
+                        shiftUp = True
+
+                shiftedUp = False
+                shiftedLeft = False
+    
+                while (self.isRoomIntersectingAnotherRoom(i) or (shiftLeft or shiftRight)):
+                        #actually do the shifting based on what we discovered.
+                        self.getRoomProximities(i) #search for the current Room's proximities
+                        if len(self.proximities[i] > 0:
+                           return            
+                        if shiftedUp and shiftedLeft:
+                                       print "Unable to find a matching room for room: %d", %i
+                                       return
+                               
+                        tryShiftRoom(i, shiftLeft, shiftUp)
+
+               #stuff
+
+        def tryShiftRoom(self, i, shiftLeft, shiftUp):
+                                       
+                               
 	def buildAndSortProximities(self):
 		#search horizontally
 		self.proximities = []
-		
+                
 		for i in xrange(0, MAX_ROOM_NUMBER):
 			#list rooms in order of proximity.
 			self.proximities.append([])
-			
-			#search for horizontal
-			for j in xrange(0, MAX_ROOM_NUMBER):
-				if i != j:
-					#print 'Index i: {0:2d} Index j: {1:2d}'.format(i, j)
-					sA = self.rooms[i].sharedAxis(self.rooms[j])
-					p = self.rooms[i].findClosestWallsAndTheirDistances(self.rooms[j], sA)
-					if p != None:
-						self.proximities[i].append((j, p[0], p[1]))
-					
-			#print "Proximities found for room: %d with the following rooms:" %i
-			self.proximities[i].sort(key=lambda x: (x[2], [1]))
-			self.proximities[i] = self.removeRoomsNotInDirectLine(self.proximities[i])
-			
-			for p in xrange(0, len(self.proximities[i])):
-				if self.proximities[i][p][1] == None: #and p[1][0] != None:
-					del self.proximities[i][p]
-				#else:
-				#	print self.proximities[i][p]
-			
+                        self.getRoomProximities(i)
+                        self.shiftRoomAsNeeded(i)
+                                
 	def makeHallways(self, max_distance):
 		#print "Making Hallways"
 		for i in xrange(0, len(self.proximities)):
