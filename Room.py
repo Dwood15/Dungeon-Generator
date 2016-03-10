@@ -121,23 +121,23 @@ class Room(object):
 		return not (self.TopLeft.x > test.BotRight.x or self.BotRight.x < test.TopLeft.x or self.TopLeft.y > test.BotRight.y or self.BotRight.y < test.TopLeft.y)
 		
 	#Find the wall closest to the one we're testing
-	def findClosestWallsAndTheirDistances(self, test, axis):
+	def findClosestWallsAndTheirDistances(self, testRm, axis):
 		if axis != None:
 			if axis=='horizontal' :
 				#the higher it is, the firther to the right it is.
-				if self.TopLeft.x > test.BotRight.x:
-					return ("left", abs(self.TopLeft.x - test.BotRight.x))
+				if self.TopLeft.x > testRm.BotRight.x:
+					return ("left", abs(self.TopLeft.x - testRm.BotRight.x))
 				if self.TopLeft.x < test.BotRight.x:
-					return ("right", abs(self.BotRight.x - test.TopLeft.x))
+					return ("right", abs(self.BotRight.x - testRm.TopLeft.x))
 			else:
 				#the higher the number it is, the lower it is
 				if self.TopLeft.y > test.BotRight.y: 
-					return ("upper", abs(self.TopLeft.y - test.BotRight.y))
+					return ("upper", abs(self.TopLeft.y - testRm.BotRight.y))
 				else:
-					return ("lower", abs(self.BotRight.y - test.TopLeft.y))
+					return ("lower", abs(self.BotRight.y - testRm.TopLeft.y))
 		else:
                         return None
-	
+                
 	def shiftMe(self, direction, amount):
 		if direction == "left":
 			self.TopLeft.x -= amount

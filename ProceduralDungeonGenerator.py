@@ -108,13 +108,14 @@ class Map(object):
 				del self.proximities[i][p]
 
         def shiftRoomAsNeeded(self, i):
-                if len(self.proximities[i]) < 0:
+                if len(self.proximities[i]) > 0:
                         return
                 elif MAX_ROOM_NUMBER == 1:
                         return
                 
                 shiftLeft = False
                 shiftUp = False
+                
                 
                 leftMapWallDist = abs(1 - self.Rooms[i].TopLeft.x)
                 rightMapWallDist = abs((self.width-1) - self.Rooms[i].BotRight.x)
@@ -130,22 +131,26 @@ class Map(object):
 
                 shiftedUp = False
                 shiftedLeft = False
-    
-                while (self.isRoomIntersectingAnotherRoom(i) or (shiftLeft or shiftRight)):
-                        #actually do the shifting based on what we discovered.
-                        self.getRoomProximities(i) #search for the current Room's proximities
-                        if len(self.proximities[i] > 0:
-                           return            
-                        if shiftedUp and shiftedLeft:
-                                       print "Unable to find a matching room for room: %d", %i
-                                       return
-                               
-                        tryShiftRoom(i, shiftLeft, shiftUp)
+                shiftedRight = False
+                shiftedDown = False
+                
+                if(shiftLeft and not shiftedLeft):
+                        self.rooms[i].shiftMe("Left")
+                elif (not shiftLeft and not shiftedRight):
+                        self.rooms[i].shiftMe("Right")
+                else:
+                        print "Ran both left and right, and could not find a room"
 
-               #stuff
+                if(shiftUp and not shiftedUp):
+                        self.rooms[i].shiftMe("Up")
+                elif (not shiftUp and not shiftedDown):
+                        self.rooms[i].shiftMe("Down")
+                else:
+                        print "Ran both up and down, and could not find a room"
 
         def tryShiftRoom(self, i, shiftLeft, shiftUp):
-                                       
+                
+                                       pass
                                
 	def buildAndSortProximities(self):
 		#search horizontally
