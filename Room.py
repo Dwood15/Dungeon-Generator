@@ -103,6 +103,7 @@ class Room(object):
         
         def getWidth(self):
                 return (self.BotRight.x - self.TopLeft.x)
+
 	#try to create a door at the point.
 	def addDoor(self, pt, testIdx):
 		#check to see if we are already directly connected
@@ -123,7 +124,8 @@ class Room(object):
 	#return true if there is intersection between this room
 	# and another room - this tests to see if the top is lower than the lowest of the one to test.
 	def intersects(self, test):
-		return not (self.TopLeft.x > test.BotRight.x or self.BotRight.x < test.TopLeft.x or self.TopLeft.y > test.BotRight.y or self.BotRight.y < test.TopLeft.y)
+		return not (self.TopLeft.x > test.BotRight.x or self.BotRight.x < test.TopLeft.x
+                            or self.TopLeft.y > test.BotRight.y or self.BotRight.y < test.TopLeft.y)
 		
 	#Find the wall closest to the one we're testing
 	def findClosestWallsAndTheirDistances(self, testRm, axis):
@@ -132,32 +134,37 @@ class Room(object):
 				#the higher it is, the firther to the right it is.
 				if self.TopLeft.x > testRm.BotRight.x:
 					return ("left", abs(self.TopLeft.x - testRm.BotRight.x))
-				if self.TopLeft.x < test.BotRight.x:
+				if self.TopLeft.x < testRm.BotRight.x:
 					return ("right", abs(self.BotRight.x - testRm.TopLeft.x))
 			else:
 				#the higher the number it is, the lower it is
-				if self.TopLeft.y > test.BotRight.y: 
+				if self.TopLeft.y > testRm.BotRight.y: 
 					return ("upper", abs(self.TopLeft.y - testRm.BotRight.y))
 				else:
 					return ("lower", abs(self.BotRight.y - testRm.TopLeft.y))
 		else:
                         return None
                 
-	def shiftMe(self, direction, amount):
-		if direction == "left":
-			self.TopLeft.x -= amount
-			self.BotRight.x -= amount
-		elif direction == "right":
-			self.Topleft.x += amount
-			self.BotRight.x += amount			
-		elif direction == "up":
-			self.TopLeft.y -= amount
-			self.BotRight.y -= amount
-		elif direction == "down":
-			self.TopLeft.y += amount
-			self.BotRight.y += amount
+	def shiftMe(self, direction):
+                if direction == "Left" or direction == "Right":
+                        amount = (self.BotRight.x - self.TopLeft.x)
+                        if direction == "Left":
+                                self.TopLeft.x -= amount
+                                self.BotRight.x -= amount
+                        elif direction == "Rght":
+                                self.Topleft.x += amount
+                                self.BotRight.x += amount
+                                
+                elif direction == "Up" or "Down":
+                        amount = (self.BotRight.y - self.TopLeft.y)
+                        if direction == "Up":
+                                self.TopLeft.y -= amount
+                                self.BotRight.y -= amount
+                        elif direction == "Down":
+                                self.TopLeft.y += amount
+                                self.BotRight.y += amount
 		else: 
-			print "Error, invalid input: "
+			print "Error, invalid input: %s", direction
 
         def sharedAxis(self, test):
 		for i in xrange(self.TopLeft.y, self.BotRight.y + 1):

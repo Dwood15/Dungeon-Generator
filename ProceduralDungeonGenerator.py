@@ -12,8 +12,8 @@ from Hallway import *
 
 #Move min max to own named variables
 #Min room #, max room #
-MAX_ROOM_NUMBER = 4
-MAX_DIST_FOR_HALLWAYS = 40
+MAX_ROOM_NUMBER = 8
+MAX_DIST_FOR_HALLWAYS = 60
 
 MIN_ROOM_X = 4
 MAX_ROOM_X = 8
@@ -107,43 +107,56 @@ class Map(object):
 			if self.proximities[i][p][1] == None:
                                 del self.proximities[i][p]
 
-        def shiftRoomLeft(self, i, leftMapWallDist):
+        def shiftRoomLeft(self, i):
+                leftMapWallDist = abs(1 - self.rooms[i].TopLeft.x)
+                print "Shifting Room Left"
                 while(leftMapWallDist > self.rooms[i].getWidth() and len(self.proximities[i]) == 0):
                         self.rooms[i].shiftMe("Left")
+                        self.getRoomProximities(i)
+                        leftMapWallDist = abs(1 - self.rooms[i].TopLeft.x)
+                print "Shifted Room Left"
 
-        def shiftRoomRight(self, i, rightMapWallDist):
+        def shiftRoomRight(self, i):
+                rightMapWallDist = abs((self.width-1) - self.rooms[i].BotRight.x)
+                print "Shifting Room Right"
                 while(rightMapWallDist > self.rooms[i].getWidth() and len(self.proximities[i]) == 0):
                         self.rooms[i].shiftMe("Right")
-                        
-        def shiftRoomLeftRight(self, i):
-                leftMapWallDist = abs(1 - self.Rooms[i].TopLeft.x)
-                rightMapWallDist = abs((self.width-1) - self.Rooms[i].BotRight.x)
-
-                shiftRoomLeft(i, leftMapWallDist)
-                shiftRoomRight(i, rightMapWallDist)
-
-                if len(self.proximities[i] == 0):
-                        print "Ran both left and right, and could not find a room"
-                        
+                        self.getRoomProximities(i)
+                        rightMapWallDist = abs((self.width-1) - self.rooms[i].BotRight.x)
+                print "Shifted Room Right"
+                
+        def shiftRoomUp(self, i):
+                topMapWallDist = abs(1 - self.rooms[i].TopLeft.y)
+                print "Shifting Room Up"
+                while(topMapWallDist > self.rooms[i].getHeight() and len(self.proximities[i]) == 0):
+                        self.rooms[i].shiftMe("Up")
+                        self.getRoomProximities(i)
+                        topMapWallDist = abs(1 - self.rooms[i].TopLeft.y)
+                print "Shifted Room Up"
+                
+        def shiftRoomDown(self, i):
+                botMapWallDist = abs((self.height-1) - self.rooms[i].BotRight.y)
+                print "Shifting Room Down"
+                while(botMapWallDist > self.rooms[i].getHeight() and len(self.proximities[i]) == 0):
+                        self.rooms[i].shiftMe("Down")
+                        self.getRoomProximities(i)
+                        botMapWallDist = abs((self.height-1) - self.rooms[i].BotRight.y)
+                print "Shifted Room Down"
+                
         def shiftRoomAsNeeded(self, i):
                 if len(self.proximities[i]) > 0:
                         return
                 elif MAX_ROOM_NUMBER == 1:
                         return
                 
-                topMapWallDist = abs(1 - self.Rooms[i].TopLeft.y)
-                botMapWallDist = abs((self.height - 1) - self.Rooms[i].BotRight.y)
-
-                if(topMapWallDist > botMapWallDist):
-                        shiftUp = True
-
-                if(shiftUp and not shiftedUp):
-                        self.rooms[i].shiftMe("Up")
-                elif (not shiftUp and not shiftedDown):
-                        self.rooms[i].shiftMe("Down")
-                else:
-                        print "Ran both up and down, and could not find a room"
-                               
+                self.shiftRoomLeft(i)
+                self.shiftRoomRight(i)
+                self.shiftRoomUp(i)
+                self.shiftRoomDown(i)
+                
+                if len(self.proximities[i]) == 0:
+                        print "Ran both up, down, left, right, and still could not find a room"
+                        
 	def buildAndSortProximities(self):
 		#search horizontally
 		self.proximities = []
