@@ -97,7 +97,12 @@ class Room(object):
 		#print "Putting doors at: " + str (pt) + " and: " + str(bPt)
 		
 		return (pt, bPt)
-		
+
+        def getHeight(self):
+                return (self.BotRight.y - self.TopLeft.y)
+        
+        def getWidth(self):
+                return (self.BotRight.x - self.TopLeft.x)
 	#try to create a door at the point.
 	def addDoor(self, pt, testIdx):
 		#check to see if we are already directly connected
