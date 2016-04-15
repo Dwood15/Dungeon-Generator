@@ -16,7 +16,3 @@ Requirements:
  - Hallways between 1 and 3 characters wide.
  - Rooms size from 4x4 to 8x8, with si=ome rectangle ones.
  - Rooms must not be on the edge of the map.
-
-Todo: 
- - Establish algorythm to create non overlapping rooms.
- - Establish algorythm to create the hallways.
